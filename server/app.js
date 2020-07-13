@@ -31,7 +31,7 @@ app.use('/api', apiRoutes)
 
 // Error handling
 function logErrors(err, req, res, next) {
-  console.error(err.stack)
+  console.error(err)
   next(err)
 }
 function clientErrorHandler(err, req, res, next) {

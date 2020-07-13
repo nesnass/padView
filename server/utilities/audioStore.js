@@ -4,7 +4,8 @@ let library = {}
 
 // Create an ID for a given file path + filename
 function idForFileUrl(url) {
-  return url.replace('/', '-')
+  const regex = /\//gi
+  return url.replace(regex, '-')
 }
 
 // Create a new entry object
@@ -20,23 +21,28 @@ function createEntry(data) {
 }
 
 // Add enry to the library
-function addEntry(entry) {
+function addLibraryEntry(entry) {
   library[entry.id] = entry
   status
 }
 
 // Retrieve an entry from the library by ID
-function getEntry(id) {
+function getLibraryEntry(id) {
   return library[id]
 }
 
-// --------------- Playlist ---------------
+function getLibrary() {
+  return library
+}
+
+// --------------- Playlist Queue Storage ---------------
 
 const playlist = []
 const status = {
   playing: false,
+  paused: false,
   currentEntry: undefined,
-  currentIndex: -1,
+  currentIndex: 0,
   quecount: 0,
 }
 
@@ -62,15 +68,56 @@ function getStatus() {
   return Object.assign({}, status)
 }
 
+// ------------ Playlist Queue Control -----------
+
+function play() {
+  if (playlist.length > 0) {
+    // was stopped
+    if (!status.playing && !status.paused) {
+      status.currentEntry = playlist[status.currentIndex]
+      status.playing = true
+    } else if (status.paused) {
+      // was paused
+      status.paused = false
+      status.playing = true
+    }
+  }
+}
+
+function stop() {
+  status.playing = false
+  status.paused = false
+  status.currentIndex = 0
+}
+
+function pause() {
+  status.paused = true
+}
+
+function advance() {
+  if (playlist.length > status.currentIndex + 1) {
+    status.currentIndex++
+    status.currentEntry = playlist[status.currentIndex]
+  } else {
+    stop()
+  }
+}
+
 module.exports = {
   idForFileUrl,
   library,
   createEntry,
-  addEntry,
-  getEntry,
+  addLibraryEntry,
+  getLibraryEntry,
+  getLibrary,
 
   queueEntry,
   queueCount,
   getStatus,
   clearPlaylist,
+
+  play,
+  stop,
+  pause,
+  advance,
 }
